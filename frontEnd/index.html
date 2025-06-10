@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerenciamento de Produtos</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <h1>Cadastro de Produtos</h1>
+
+    <form id="produtoForm">
+        <!-- <input type="text" id="produtoId" /> -->
+        <input type="hidden" id="produtoId" />
+        <input type="text" id="nome" placeholder="Nome" required />
+        <input type="text" id="descricao" placeholder="Descrição" />
+        <input type="number" id="quantidade" placeholder="Quantidade" required />
+        <input type="number" step="0.01" id="valor" placeholder="Valor (R$)" required />
+        <button type="submit">Salvar Produto</button>
+        <button type="button" id="cancelarEdicao" style="display:none;">Cancelar Edição</button>
+    </form>
+
+    <input type="text" id="filtro" placeholder="Filtrar por nome..." oninput="filtrarProdutos()"/>
+
+    <!--  Validação de formulário mais robusta - mensagens customizadas nos campos -->
+    <input type="text" id="nome" placeholder="Nome" required oninvalid="this.setCustomValidity('Preencha o nome')"
+        oninput="this.setCustomValidity('')" />
+
+
+    <h2>Lista de Produtos</h2>
+    <ul id="listaProdutos"></ul>
+
+    <button onclick="exportarParaCSV()">Exportar CSV</button>
+
+
+    <script src="./app.js"></script>
+</body>
+
+</html>
