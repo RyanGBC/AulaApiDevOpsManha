@@ -1,0 +1,6 @@
+@AulaApiDevOpsManha_HostAddress = http://localhost:5089
+
+GET {{AulaApiDevOpsManha_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
