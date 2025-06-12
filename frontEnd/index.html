@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gerenciamento de Produtos</title>
+    <title>Gerenciamento de Produtos e Fornecedores</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -12,28 +12,50 @@
     <h1>Cadastro de Produtos</h1>
 
     <form id="produtoForm">
-        <!-- <input type="text" id="produtoId" /> -->
         <input type="hidden" id="produtoId" />
-        <input type="text" id="nome" placeholder="Nome" required />
+        <input type="text" id="nomeProduto" placeholder="Nome" required
+               oninvalid="this.setCustomValidity('Preencha o nome do produto')"
+               oninput="this.setCustomValidity('')" />
         <input type="text" id="descricao" placeholder="Descrição" />
-        <input type="number" id="quantidade" placeholder="Quantidade" required />
-        <input type="number" step="0.01" id="valor" placeholder="Valor (R$)" required />
+        <input type="number" id="quantidade" placeholder="Quantidade" required
+               oninvalid="this.setCustomValidity('Preencha a quantidade')"
+               oninput="this.setCustomValidity('')" />
+        <input type="number" step="0.01" id="valor" placeholder="Valor (R$)" required
+               oninvalid="this.setCustomValidity('Preencha o valor')"
+               oninput="this.setCustomValidity('')" />
         <button type="submit">Salvar Produto</button>
         <button type="button" id="cancelarEdicao" style="display:none;">Cancelar Edição</button>
     </form>
 
-    <input type="text" id="filtro" placeholder="Filtrar por nome..." oninput="filtrarProdutos()"/>
-
-    <!--  Validação de formulário mais robusta - mensagens customizadas nos campos -->
-    <input type="text" id="nome" placeholder="Nome" required oninvalid="this.setCustomValidity('Preencha o nome')"
-        oninput="this.setCustomValidity('')" />
-
+    <input type="text" id="filtroProduto" placeholder="Filtrar produtos por nome..." oninput="filtrarProdutos()" />
 
     <h2>Lista de Produtos</h2>
     <ul id="listaProdutos"></ul>
 
-    <button onclick="exportarParaCSV()">Exportar CSV</button>
+    <button onclick="exportarParaCSV()">Exportar Produtos para CSV</button>
 
+    <hr />
+
+    <h1>Cadastro de Fornecedores</h1>
+
+    <form id="fornecedorForm">
+        <input type="hidden" id="fornecedorId" />
+        <input type="text" id="nomeFornecedor" placeholder="Nome" required
+               oninvalid="this.setCustomValidity('Preencha o nome do fornecedor')"
+               oninput="this.setCustomValidity('')" />
+        <input type="text" id="cnpj" placeholder="CNPJ" />
+        <input type="text" id="telefone" placeholder="Telefone" />
+        <input type="email" id="email" placeholder="Email" />
+        <button type="submit">Salvar Fornecedor</button>
+        <button type="button" id="cancelarEdicaoFornecedor" style="display:none;">Cancelar Edição</button>
+    </form>
+
+    <input type="text" id="filtroFornecedor" placeholder="Filtrar fornecedores por nome..." oninput="filtrarFornecedores()" />
+
+    <h2>Lista de Fornecedores</h2>
+    <ul id="listaFornecedores"></ul>
+
+    <button onclick="exportarFornecedoresParaCSV()">Exportar Fornecedores para CSV</button>
 
     <script src="./app.js"></script>
 </body>

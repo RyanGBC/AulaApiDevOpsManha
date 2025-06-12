@@ -15,5 +15,6 @@ namespace AulaApiDevOpsManha.Data
         }
 
         public DbSet<AulaApiDevOpsManha.Models.Produtos> Produtos { get; set; } = default!;
+        public DbSet<AulaApiDevOpsManha.Models.Fornecedor> Fornecedor { get; set; } = default!;
     }
 }

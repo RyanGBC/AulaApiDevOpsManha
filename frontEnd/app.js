@@ -1,18 +1,26 @@
-//const apiUrl = "https://localhost:44381/api/produtos";
-//const apiUrl = "https://localhost:7298/api/produtos";
-const apiUrl = "https://localhost:44346/api/Produtos";
+const apiProdutosUrl = "https://localhost:44346/api/Produtos";
+const apiFornecedoresUrl = "https://localhost:44346/api/Fornecedors";
 
 let produtosOriginais = [];
+let fornecedoresOriginais = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     carregarProdutos();
+    carregarFornecedores();
 
+    // Produtos
     document.getElementById("produtoForm").addEventListener("submit", salvarProduto);
-    document.getElementById("cancelarEdicao").addEventListener("click", cancelarEdicao);
+    document.getElementById("cancelarEdicao").addEventListener("click", cancelarEdicaoProduto);
+
+    // Fornecedores
+    document.getElementById("fornecedorForm").addEventListener("submit", salvarFornecedor);
+    document.getElementById("cancelarEdicaoFornecedor").addEventListener("click", cancelarEdicaoFornecedor);
 });
 
+// --- Produtos ---
+
 async function carregarProdutos() {
-    const res = await fetch(apiUrl);
+    const res = await fetch(apiProdutosUrl);
     produtosOriginais = await res.json();
     renderizarProdutos(produtosOriginais);
 }
@@ -33,26 +41,19 @@ function renderizarProdutos(produtos) {
     });
 }
 
-
-function filtrarProdutos() {
-    const termo = document.getElementById("filtro").value.toLowerCase();
-    const filtrados = produtosOriginais.filter(p => p.nome.toLowerCase().includes(termo));
-    renderizarProdutos(filtrados);
-}
-
 async function salvarProduto(e) {
     e.preventDefault();
 
     const id = document.getElementById("produtoId").value;
     const produto = {
-        nome: document.getElementById("nome").value,
+        nome: document.getElementById("nomeProduto").value,
         descricao: document.getElementById("descricao").value,
         quantidade: parseInt(document.getElementById("quantidade").value),
         valor: parseFloat(document.getElementById("valor").value)
     };
 
     let method = "POST";
-    let url = apiUrl;
+    let url = apiProdutosUrl;
 
     if (id) {
         method = "PUT";
@@ -61,29 +62,26 @@ async function salvarProduto(e) {
     }
 
     const res = await fetch(url, {
-        method: method,
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(produto)
     });
 
     if (res.ok) {
-        //alert(`Produto ${id ? "atualizado" : "cadastrado"} com sucesso!`);
-        mostrarMensagem("Produto cadastrado com sucesso!");
-
-        resetForm();
+        mostrarMensagem(`Produto ${id ? "atualizado" : "cadastrado"} com sucesso!`);
+        resetFormProduto();
         carregarProdutos();
     } else {
-        alert("Erro ao salvar produto.");
+        mostrarMensagem("Erro ao salvar produto.", "erro");
     }
 }
 
-
 function editarProduto(id) {
-    fetch(`${apiUrl}/${id}`)
+    fetch(`${apiProdutosUrl}/${id}`)
         .then(res => res.json())
         .then(produto => {
             document.getElementById("produtoId").value = produto.id;
-            document.getElementById("nome").value = produto.nome;
+            document.getElementById("nomeProduto").value = produto.nome;
             document.getElementById("descricao").value = produto.descricao;
             document.getElementById("quantidade").value = produto.quantidade;
             document.getElementById("valor").value = produto.valor;
@@ -93,36 +91,119 @@ function editarProduto(id) {
 
 async function deletarProduto(id) {
     if (confirm("Deseja excluir este produto?")) {
-        const res = await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+        const res = await fetch(`${apiProdutosUrl}/${id}`, { method: "DELETE" });
         if (res.ok) {
             carregarProdutos();
         } else {
-            alert("Erro ao excluir produto.");
+            mostrarMensagem("Erro ao excluir produto.", "erro");
         }
     }
 }
 
-function cancelarEdicao() {
-    resetForm();
+function cancelarEdicaoProduto() {
+    resetFormProduto();
 }
 
-function resetForm() {
+function resetFormProduto() {
     document.getElementById("produtoForm").reset();
     document.getElementById("produtoId").value = "";
     document.getElementById("cancelarEdicao").style.display = "none";
 }
 
-function exportarParaCSV() {
-    const csv = produtosOriginais.map(p => `${p.nome},${p.descricao},${p.quantidade},${p.valor}`).join("\n");
-    const blob = new Blob(["Nome,Descricao,Quantidade,Valor\n" + csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "produtos.csv";
-    link.click();
+// --- Fornecedores ---
+
+async function carregarFornecedores() {
+    const res = await fetch(apiFornecedoresUrl);
+    fornecedoresOriginais = await res.json();
+    renderizarFornecedores(fornecedoresOriginais);
 }
 
+function renderizarFornecedores(fornecedores) {
+    const lista = document.getElementById("listaFornecedores");
+    lista.innerHTML = "";
 
-// Visual ao salvar - em vez de só usar alert, mostrar uma mensagem na tela por alguns segundos
+    fornecedores.forEach(fornecedor => {
+        const item = document.createElement("li");
+        item.innerHTML = `
+          <strong>${fornecedor.nome}</strong> - CNPJ: ${fornecedor.cnpj || ""} - Telefone: ${fornecedor.telefone || ""} - Email: ${fornecedor.email || ""}
+          <button onclick="editarFornecedor('${fornecedor.id}')">Editar</button>
+          <button onclick="deletarFornecedor('${fornecedor.id}')">Excluir</button>
+        `;
+        lista.appendChild(item);
+    });
+}
+
+async function salvarFornecedor(e) {
+    e.preventDefault();
+
+    const id = document.getElementById("fornecedorId").value;
+    const fornecedor = {
+        nome: document.getElementById("nomeFornecedor").value,
+        cnpj: document.getElementById("cnpj").value,
+        telefone: document.getElementById("telefone").value,
+        email: document.getElementById("email").value,
+    };
+
+    let method = "POST";
+    let url = apiFornecedoresUrl;
+
+    if (id) {
+        method = "PUT";
+        url += `/${id}`;
+        fornecedor.id = id;
+    }
+
+    const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(fornecedor)
+    });
+
+    if (res.ok) {
+        mostrarMensagem(`Fornecedor ${id ? "atualizado" : "cadastrado"} com sucesso!`);
+        resetFormFornecedor();
+        carregarFornecedores();
+    } else {
+        mostrarMensagem("Erro ao salvar fornecedor.", "erro");
+    }
+}
+
+function editarFornecedor(id) {
+    fetch(`${apiFornecedoresUrl}/${id}`)
+        .then(res => res.json())
+        .then(fornecedor => {
+            document.getElementById("fornecedorId").value = fornecedor.id;
+            document.getElementById("nomeFornecedor").value = fornecedor.nome;
+            document.getElementById("cnpj").value = fornecedor.cnpj;
+            document.getElementById("telefone").value = fornecedor.telefone;
+            document.getElementById("email").value = fornecedor.email;
+            document.getElementById("cancelarEdicaoFornecedor").style.display = "inline-block";
+        });
+}
+
+async function deletarFornecedor(id) {
+    if (confirm("Deseja excluir este fornecedor?")) {
+        const res = await fetch(`${apiFornecedoresUrl}/${id}`, { method: "DELETE" });
+        if (res.ok) {
+            carregarFornecedores();
+        } else {
+            mostrarMensagem("Erro ao excluir fornecedor.", "erro");
+        }
+    }
+}
+
+function cancelarEdicaoFornecedor() {
+    resetFormFornecedor();
+}
+
+function resetFormFornecedor() {
+    document.getElementById("fornecedorForm").reset();
+    document.getElementById("fornecedorId").value = "";
+    document.getElementById("cancelarEdicaoFornecedor").style.display = "none";
+}
+
+// --- Mensagem de feedback ---
+
 function mostrarMensagem(mensagem, tipo = 'sucesso') {
     const msg = document.createElement('div');
     msg.innerText = mensagem;
